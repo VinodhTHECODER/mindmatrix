@@ -1,0 +1,72 @@
+# 🚌 INFINIX TRAVELS
+
+This is a single-page web application that simulates a real-world bus ticket booking system similar to RedBus. The project is built using HTML, CSS, and JavaScript without any frameworks.
+
+---
+
+## 🚀 Features
+
+- 🔍 Search buses by source, destination, and date
+- 🚌 Display multiple buses with available seats
+- 💺 Interactive seat selection (2+2 layout with aisle)
+- 🎨 Visual seat indicators:
+  - Green → Available
+  - Yellow → Selected
+  - Red → Booked
+- 👤 Passenger details form (Name, Age, Mobile, Gender)
+- 💳 Payment simulation (UPI & Card options)
+- 🧾 Booking receipt with:
+  - Journey details
+  - Vehicle number
+  - Passenger details
+  - Driver information
+- 🎫 Booked tickets page
+- ❌ Cancel tickets (seats become available again)
+
+---
+
+## 🧠 Technologies Used
+
+- HTML (Structure)
+- CSS (Styling & UI Design)
+- JavaScript (Logic & DOM Manipulation)
+
+---
+
+## ⚙️ How It Works
+
+1. User searches for buses
+2. Selects a bus and chooses seats
+3. Enters passenger details
+4. Completes payment (simulated)
+5. Receives booking receipt
+6. Can view and cancel tickets
+
+---
+
+## ⚠️ Limitations
+
+- No backend (data resets on refresh)
+- Payment gateway is simulated
+- No database integration
+
+---
+
+## 🔮 Future Improvements
+
+- Add backend (Node.js / Firebase)
+- Real payment gateway integration (Razorpay)
+- User authentication system
+- Persistent storage using database
+
+---
+
+## 📸 Screenshots
+
+(Add screenshots here if needed)
+
+---
+
+## 💡 Author
+
+Developed as a mini project to demonstrate a real-world booking system with dynamic UI and seat management logic.
