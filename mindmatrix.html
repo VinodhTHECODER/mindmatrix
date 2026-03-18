@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INFINIX TRAVELS AND TOURS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:
+    linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),
+    url("https://images.unsplash.com/photo-1504384308090-c894fdcc538d");
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+    color:white;
+}
+
+header{
+    text-align:center;
+    padding:20px;
+    font-size:26px;
+    background:rgba(0,0,0,0.6);
+}
+
+.page{display:none;padding:20px;}
+.active{display:block;}
+
+.card{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(12px);
+    padding:20px;
+    margin:10px 0;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.2);
+}
+
+input,select{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:none;
+    border-radius:6px;
+}
+
+button{
+    background:#ff4b2b;
+    border:none;
+    padding:10px;
+    color:white;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{background:#ff2a00;}
+
+.seat-row{display:flex;justify-content:center;}
+.seat{
+    width:45px;height:45px;margin:5px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:12px;
+}
+.available{background:#4CAF50;}
+.selected{background:yellow;color:black;}
+.booked{background:red;cursor:not-allowed;}
+.aisle{width:30px;}
+
+.legend{display:flex;gap:20px;justify-content:center;margin:10px;}
+
+.receipt{background:white;color:black;padding:15px;border-radius:10px;}
+</style>
+</head>
+
+<body>
+
+<header>INFINIX TRAVELS AND TOURS</header>
+
+<!-- HOME -->
+<div id="mainPage" class="page active">
+<div class="card">
+<h3>Search</h3>
+<input id="from" placeholder="From">
+<input id="to" placeholder="To">
+<input id="date" type="date">
+<button onclick="searchBuses()">Search</button>
+<button onclick="showTickets()">🎫 Booked Tickets</button>
+</div>
+<div id="busList"></div>
+</div>
+
+<!-- SEAT -->
+<div id="seatPage" class="page">
+<button onclick="showPage('mainPage')">⬅ Back</button>
+<h3 id="busTitle"></h3>
+
+<div class="legend">
+<div>🟢 Available</div>
+<div>🟡 Selected</div>
+<div>🔴 Booked</div>
+</div>
+
+<div id="seatLayout"></div>
+<h3 id="totalPrice">Total: ₹0</h3>
+<button onclick="goPassenger()">Continue</button>
+</div>
+
+<!-- PASSENGER -->
+<div id="passengerPage" class="page">
+<button onclick="showPage('seatPage')">⬅ Back</button>
+<div class="card">
+<h3>Passenger Details</h3>
+<input id="name" placeholder="Name">
+<input id="age" placeholder="Age">
+<input id="mobile" placeholder="Mobile">
+<select id="gender">
+<option>Male</option>
+<option>Female</option>
+</select>
+<button onclick="goPayment()">Proceed</button>
+</div>
+</div>
+
+<!-- PAYMENT -->
+<div id="paymentPage" class="page">
+<button onclick="showPage('passengerPage')">⬅ Back</button>
+<div class="card">
+<h3>Payment</h3>
+<p id="paymentInfo"></p>
+
+<select id="paymentMethod">
+<option>UPI</option>
+<option>Card</option>
+</select>
+
+<div id="upiBox"><input placeholder="Enter UPI ID"></div>
+<div id="cardBox" style="display:none;">
+<input placeholder="Card Number">
+<input placeholder="Expiry">
+<input placeholder="CVV">
+</div>
+
+<button onclick="confirmPayment()">Pay</button>
+</div>
+</div>
+
+<!-- RECEIPT -->
+<div id="receiptPage" class="page">
+<h3>✅ Booking Confirmed</h3>
+<div id="receipt" class="receipt"></div>
+<button onclick="showPage('mainPage')">🏠 Home</button>
+</div>
+
+<!-- TICKETS -->
+<div id="ticketsPage" class="page">
+<button onclick="showPage('mainPage')">⬅ Back</button>
+<h3>Your Tickets</h3>
+<div id="ticketsList"></div>
+</div>
+
+<script>
+let buses=[], bookings=[], selectedSeats=[], currentBusIndex, journey={};
+
+// create buses
+for(let i=1;i<=12;i++){
+    buses.push({
+        name:"Bus "+i,
+        price:400+i*50,
+        time:(6+i)+":00",
+        vehicle:"TN"+i+"XX"+(1000+i),
+        driver:{name:"Driver "+i, phone:"9"+Math.floor(Math.random()*9000000000)},
+        bookedSeats:Array.from({length:8},()=>Math.floor(Math.random()*40))
+    });
+}
+
+// SEARCH
+function searchBuses(){
+    journey={
+        from:document.getElementById("from").value||"Chennai",
+        to:document.getElementById("to").value||"Bangalore",
+        date:document.getElementById("date").value||"Today"
+    };
+    loadBuses();
+}
+
+// LOAD BUSES (FIXED)
+function loadBuses(){
+    let html="";
+    buses.forEach((b,i)=>{
+        let available = 40 - b.bookedSeats.length;
+
+        html+=`
+        <div class="card">
+        <h4>${b.name}</h4>
+        <p>${journey.from} → ${journey.to}</p>
+        <p>Time: ${b.time}</p>
+        <p><b>Available Seats: ${available}</b></p>
+        <button onclick="openSeats(${i})">Book</button>
+        </div>`;
+    });
+    document.getElementById("busList").innerHTML=html;
+}
+
+// SEAT PAGE
+function openSeats(i){
+    currentBusIndex=i;
+    selectedSeats=[];
+    showPage("seatPage");
+
+    let layout=document.getElementById("seatLayout");
+    layout.innerHTML="";
+    document.getElementById("busTitle").innerText=buses[i].name;
+
+    for(let r=0;r<10;r++){
+        let row=document.createElement("div");
+        row.className="seat-row";
+
+        for(let c=0;c<4;c++){
+            if(c===2){
+                let gap=document.createElement("div");
+                gap.className="aisle";
+                row.appendChild(gap);
+            }
+
+            let num=r*4+c;
+            let seat=document.createElement("div");
+            seat.className="seat";
+            seat.innerText=num+1;
+
+            if(buses[i].bookedSeats.includes(num)){
+                seat.classList.add("booked");
+            } else {
+                seat.classList.add("available");
+            }
+
+            seat.onclick=()=>{
+                if(seat.classList.contains("booked"))return;
+
+                seat.classList.toggle("selected");
+
+                if(selectedSeats.includes(num)){
+                    selectedSeats=selectedSeats.filter(s=>s!==num);
+                } else {
+                    selectedSeats.push(num);
+                }
+
+                document.getElementById("totalPrice").innerText=
+                "Total: ₹"+selectedSeats.length*buses[i].price;
+            };
+
+            row.appendChild(seat);
+        }
+
+        layout.appendChild(row);
+    }
+}
+
+// PASSENGER
+function goPassenger(){
+    if(selectedSeats.length===0){
+        alert("Select seats first");
+        return;
+    }
+    showPage("passengerPage");
+}
+
+// PAYMENT
+function goPayment(){
+    let name=document.getElementById("name").value;
+    let age=document.getElementById("age").value;
+    let mobile=document.getElementById("mobile").value;
+
+    if(!name||!age||!mobile){
+        alert("Fill all details");
+        return;
+    }
+
+    let b=buses[currentBusIndex];
+
+    document.getElementById("paymentInfo").innerText=
+    `${b.name} | ${journey.from} → ${journey.to}
+Seats: ${selectedSeats.map(s=>s+1).join(", ")}
+Total: ₹${selectedSeats.length*b.price}`;
+
+    showPage("paymentPage");
+}
+
+// PAYMENT SWITCH
+document.getElementById("paymentMethod").onchange=function(){
+    document.getElementById("upiBox").style.display=this.value==="UPI"?"block":"none";
+    document.getElementById("cardBox").style.display=this.value==="Card"?"block":"none";
+};
+
+// CONFIRM PAYMENT (FIXED)
+function confirmPayment(){
+    let b=buses[currentBusIndex];
+
+    b.bookedSeats.push(...selectedSeats);
+
+    bookings.push({
+        busIndex:currentBusIndex,
+        seats:[...selectedSeats],
+        name:document.getElementById("name").value,
+        mobile:document.getElementById("mobile").value,
+        journey:{...journey}
+    });
+
+    document.getElementById("receipt").innerHTML=`
+    <h4>${b.name}</h4>
+    <p>${journey.from} → ${journey.to}</p>
+    <p>Date: ${journey.date}</p>
+    <p>Seats: ${selectedSeats.map(s=>s+1).join(", ")}</p>
+    <p>Name: ${document.getElementById("name").value}</p>
+    <p>Driver: ${b.driver.name}</p>
+    <h3>Total ₹${selectedSeats.length*b.price}</h3>`;
+
+    selectedSeats=[];
+    loadBuses(); // 🔥 FIXED HERE
+
+    showPage("receiptPage");
+}
+
+// TICKETS
+function showTickets(){
+    showPage("ticketsPage");
+
+    let html="";
+    bookings.forEach((b,i)=>{
+        let bus=buses[b.busIndex];
+
+        html+=`
+        <div class="card">
+        <h4>${bus.name}</h4>
+        <p>${b.journey.from} → ${b.journey.to}</p>
+        <p>Seats: ${b.seats.map(s=>s+1)}</p>
+        <button onclick="cancelTicket(${i})">Cancel</button>
+        </div>`;
+    });
+
+    document.getElementById("ticketsList").innerHTML=html||"No tickets";
+}
+
+// CANCEL
+function cancelTicket(i){
+    let b=bookings[i];
+    let bus=buses[b.busIndex];
+
+    bus.bookedSeats=bus.bookedSeats.filter(s=>!b.seats.includes(s));
+    bookings.splice(i,1);
+
+    loadBuses(); // 🔥 also refresh
+    showTickets();
+}
+
+// NAVIGATION
+function showPage(id){
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+</script>
+
+</body>
+</html>
